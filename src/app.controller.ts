@@ -1,31 +1,49 @@
-import { Controller, Post, Body, Get } from '@nestjs/common';
-import bcrypt from 'bcrypt';
+import { Controller, Post, Body, Res } from '@nestjs/common';
+import * as bcrypt from 'bcrypt';
 import { AppService } from './app.service';
 import { IUser } from './interfaces/IUser.dto';
+import { message } from './data/chat';
+import { Response } from 'express';
+import { user } from './data/user';
+import { ICChat } from './interfaces/ICChat';
 
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @Post('signUp')
-  async signUp(@Body() user: IUser): Promise<string> {
+  async signUp(@Body() user: IUser, @Res() res: Response): Promise<void> {
     const pass = bcrypt.hashSync(user.pass, 10);
-    return this.appService.createUser(user.name, pass);
+    res.json({
+      uid: this.appService.createUser(user.name, pass)
+    });
   }
 
   @Post('signIn')
-  async signIn(@Body() user: IUser): Promise<IUser> {
-    return this.appService.loginUser(user.name, user.pass);
+  async signIn(@Body() user: IUser, @Res() res: Response): Promise<void> {
+    const thisUser: user = this.appService.loginUser(user.name, user.pass);
+    res.json(thisUser);
   }
 
-  @Get('getNewMsgs')
-  async getNewMsgs(@Body() name: string): Promise<void> {
-    const today = (new Date).setDate(new Date().getDate()-1);
-    return this.appService.getChat(name).getMessages(today);
+  @Post('getNewMsgs')
+  async getNewMsgs(@Body() body: ICChat, @Res() res: Response): Promise<void> {
+    const today: Date = new Date();
+    const yesterday: Date = new Date(today.setDate(today.getDate() - 1));
+    res.json(this.appService.getChat(body.chatName).getMessages(yesterday));
   }
 
   @Post('createChat')
-  async createChat(@Body() name: string): Promise<void> {
-    this.appService.createChat(name);
+  async createChat(@Body() body: ICChat, @Res() res: Response): Promise<void> {
+    res.json(this.appService.createChat(body.chatName));
+  }
+
+  @Post('send')
+  async sendMessage(@Body() body: { message: message, chatName: string }, @Res() res: Response): Promise<void> {
+    const msg = {
+      time: new Date,
+      text: body.message.text,
+      user: body.message.user
+    }
+    res.json(this.appService.getChat(body.chatName).send(msg));
   }
 }

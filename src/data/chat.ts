@@ -13,8 +13,8 @@ class message {
 }
 
 class chat {
-	private users: user[];
-	private messages: message[];
+	private users: user[] = [];
+	private messages: message[] = [];
 	public readonly name: string;
 
 	constructor(name: string) {

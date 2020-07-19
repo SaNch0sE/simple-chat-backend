@@ -1,10 +1,10 @@
-import { IsString, Min } from 'class-validator';
+import { IsString, MinLength } from 'class-validator';
 
 export class IUser {
     @IsString()
     name: string;
 
     @IsString()
-    @Min(6)
+    @MinLength(6)
     pass: string;
 }

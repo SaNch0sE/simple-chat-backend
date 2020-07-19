@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
+import * as bcrypt from 'bcrypt';
 import { user } from './data/user';
-import { chat, message } from './data/chat';
+import { chat } from './data/chat';
 
 @Injectable()
 export class AppService {
@@ -19,12 +20,13 @@ export class AppService {
     return this.users[id];
   }
   public loginUser(name: string, pass: string): user {
-    const result = this.users.filter(x => x.name == name).filter(x => x.pass === pass);
-    if(result.length == 0) {
-      
-    } else {
-      return result[0];
+    let uid = null;
+    for( const x in this.users) {
+      if (this.users[x].name === name && bcrypt.compareSync(pass, this.users[x].pass)) {
+        uid = x;
+      }
     }
+    return uid;
   }
 
   public createChat(name: string): chat {
