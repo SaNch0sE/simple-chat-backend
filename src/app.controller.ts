@@ -1,10 +1,9 @@
 import { Controller, Post, Body, Res } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { AppService } from './app.service';
-import { IUser } from './interfaces/IUser.dto';
 import { message } from './data/chat';
 import { Response } from 'express';
-import { user } from './data/user';
+import { IUser } from './data/user';
 import { ICChat } from './interfaces/ICChat';
 
 @Controller()
@@ -21,7 +20,7 @@ export class AppController {
 
   @Post('signIn')
   async signIn(@Body() user: IUser, @Res() res: Response): Promise<void> {
-    const thisUser: user = this.appService.loginUser(user.name, user.pass);
+    const thisUser: IUser = this.appService.loginUser(user.name, user.pass);
     res.json(thisUser);
   }
 
@@ -39,7 +38,7 @@ export class AppController {
 
   @Post('send')
   async sendMessage(@Body() body: { message: message, chatName: string }, @Res() res: Response): Promise<void> {
-    const msg = {
+    const msg: message = {
       time: new Date,
       text: body.message.text,
       user: body.message.user

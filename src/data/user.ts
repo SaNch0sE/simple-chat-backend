@@ -10,3 +10,8 @@ export class user {
 		this.id = crypto.createHash('sha256').update(name).digest('hex');
 	}
 }
+export interface IUser {
+	readonly id: string;
+	name: string;
+	readonly pass: string;
+}
