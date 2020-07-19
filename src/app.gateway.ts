@@ -9,10 +9,12 @@ import {
 import { Logger } from '@nestjs/common';
 import { Socket, Server } from 'socket.io';
 import { AppHelper } from './app.helper';
+import { AppService } from './app.service';
+import { sessions } from './db/sessions';
 
 @WebSocketGateway()
 export class AppGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
-  constructor(private appHelper: AppHelper) {}
+  constructor(private appHelper: AppHelper, private appService: AppService) {}
   @WebSocketServer() server: Server;
 
   private logger :Logger = new Logger('AppGateway');
@@ -27,7 +29,10 @@ export class AppGateway implements OnGatewayInit, OnGatewayConnection, OnGateway
 
   @SubscribeMessage('msgToServer')
   handleMessage(client: Socket, payload: string): void {
-    this.server.emit('msgToClient', payload);
+    const data = JSON.parse(payload);
+    const uids = this.appService.getChat(data.chat).send(data.message);
+    const clients = sessions.getSessions();
+    uids.map(x => clients[x].send(data.message));
   }
 
   afterInit(): void {

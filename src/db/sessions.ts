@@ -4,8 +4,8 @@ import { ISessions } from "./sessions.interface";
 class Sessions {
     private sessions: ISessions;
 
-    public getSession(uid: string): Socket {
-        return this.sessions[uid];
+    public getSessions(): ISessions {
+        return this.sessions;
     }
 
     public saveSession(uid: string, client: Socket): boolean {
